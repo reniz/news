@@ -1,47 +1,95 @@
 <?php
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use App\Models\Article;
+use Carbon\Carbon;
 
 class FetchNewsArticles extends Command
 {
     protected $signature = 'news:fetch';
-    protected $description = 'Fetch articles from external APIs and store in the database';
+    protected $description = 'Fetch news articles from different sources';
 
     public function handle()
     {
-        $sources = [
-            'https://newsapi.org/v2/everything?q=technology&apiKey=55d5ce617ec24dd89f0cb5a0a9735d8a',
-            'https://content.guardianapis.com/search?api-key=d813f7bb-ecad-4cc5-9e10-c409f3a54f0d',
-            'https://api.nytimes.com/svc/archive/v1/2024/1.json?api-key=Ea2tUqZwSfRPaJMPNoEdWAcCv2Oi3qwa'
-        ];
+        // Fetch articles from The Guardian
+        $this->fetchFromGuardian();
 
-        foreach ($sources as $source) {
-            $response = Http::get($source);
+        // Fetch articles from New York Times
+        $this->fetchFromNewYorkTimes();
 
-            if ($response->successful()) {
-                $articles = $response->json()['articles'] ?? [];
+        // Fetch articles from NewsAPI
+        $this->fetchFromNewsAPI();
 
-                foreach ($articles as $article) {
-                    Article::updateOrCreate(
-                        ['title' => $article['title']], // Unique identifier to avoid duplicates
-                        [
-                            'title' => $article['title'],
-                            'content' => $article['content'] ?? '',
-                            'source' => $article['source']['name'],
-                            'category' => 'Technology', // You can add dynamic logic to map categories
-                            'published_at' => $article['publishedAt'],
-                            'url' => $article['url']
-                        ]
-                    );
-                }
-            } else {
-                $this->error('Failed to fetch data from ' . $source);
+        $this->info('News articles fetched successfully.');
+    }
+
+    private function fetchFromGuardian()
+    {
+        $response = Http::get(env('GUARDIAN_API_URL'));
+
+        if ($response->successful()) {
+            $articles = $response->json()['response']['results'] ?? [];
+
+            foreach ($articles as $article) {
+                Article::updateOrCreate(
+                    ['title' => $article['webTitle']],
+                    [
+                        'title' => $article['webTitle'],
+                        'content' => $article['fields']['bodyText'] ?? 'No content available', // Use bodyText if available
+                        'source' => 'The Guardian',
+                        'category' => $article['sectionName'],
+                        'published_at' => Carbon::parse($article['webPublicationDate'])->toDateTimeString(),
+                    ]
+                );
             }
         }
+    }
 
-        $this->info('News articles fetched and stored successfully.');
+    private function fetchFromNewYorkTimes()
+    {
+        $response = Http::get(env('NYT_API_URL'));
+
+        if ($response->successful()) {
+            $articles = $response->json()['response']['docs'] ?? [];
+
+            foreach ($articles as $article) {
+                Article::updateOrCreate(
+                    ['title' => $article['headline']['main']],
+                    [
+                        'title' => $article['headline']['main'],
+                        'content' => $article['abstract'] ?? 'No content available',
+                        'source' => 'New York Times',
+                        'category' => $article['section_name'] ?? 'General',
+                        'published_at' => Carbon::parse($article['pub_date'])->toDateTimeString(),
+                    ]
+                );
+            }
+        }
+    }
+
+    private function fetchFromNewsAPI()
+    {
+        $response = Http::get(env('NEWS_API_URL'));
+
+        if ($response->successful()) {
+            $articles = $response->json()['articles'] ?? [];
+
+            foreach ($articles as $article) {
+                Article::updateOrCreate(
+                    ['title' => $article['title']],
+                    [
+                        'title' => $article['title'],
+                        'content' => $article['content'] ?? 'No content available',
+                        'source' => $article['source']['name'],
+                        'category' => 'General',
+                        'published_at' => Carbon::parse($article['publishedAt'])->toDateTimeString(),
+                    ]
+                );
+            }
+        }
     }
 }

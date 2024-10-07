@@ -67,4 +67,5 @@ class Kernel extends HttpKernel
     $schedule->command('news:fetch')->daily();
 }
 
+
 }
