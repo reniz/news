@@ -123,4 +123,59 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'providers' => [
+
+    /*
+     * Laravel Framework Service Providers...
+     */
+    Illuminate\Auth\AuthServiceProvider::class,
+    Illuminate\Broadcasting\BroadcastServiceProvider::class,
+    Illuminate\Bus\BusServiceProvider::class,
+    Illuminate\Filesystem\FilesystemServiceProvider::class,
+    Illuminate\Cache\CacheServiceProvider::class,
+    Illuminate\Foundation\Providers\ArtisanServiceProvider::class,
+    Illuminate\Database\DatabaseServiceProvider::class,
+    Illuminate\Foundation\Providers\ComposerServiceProvider::class,
+    Illuminate\Queue\QueueServiceProvider::class,
+    Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
+    Illuminate\Routing\RoutingServiceProvider::class,
+    Illuminate\View\ViewServiceProvider::class,
+    Illuminate\Encryption\EncryptionServiceProvider::class,
+    Illuminate\Cookie\CookieServiceProvider::class,
+    Illuminate\Session\SessionServiceProvider::class,
+    Illuminate\Hashing\HashServiceProvider::class,
+    Illuminate\Validation\ValidationServiceProvider::class,
+    Illuminate\Translation\TranslationServiceProvider::class,
+
+
+
+
+    // ...other Laravel core providers
+
+    /*
+     * Package Service Providers...
+     */
+    Laravel\Sanctum\SanctumServiceProvider::class, // Add this for Sanctum
+
+    /*
+     * Application Service Providers...
+     */
+    App\Providers\AppServiceProvider::class,
+    App\Providers\AuthServiceProvider::class,
+    App\Providers\EventServiceProvider::class,
+    App\Providers\RouteServiceProvider::class,
+
+    
+
+],
+
+'aliases' => [
+   
+    'Validator' => Illuminate\Support\Facades\Validator::class,
+    'Lang' => Illuminate\Support\Facades\Lang::class,
+
+],
+
+
+
 ];
