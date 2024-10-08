@@ -24,7 +24,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Define the schedule for commands.
+        // Schedule the news:fetch command to run every hour
+       // $schedule->command('news:fetch')->everyMinute();
+
+        $schedule->command('news:fetch')->everyMinute()->appendOutputTo(storage_path('logs/schedule.log'));
+
     }
 
     /**

@@ -6,9 +6,72 @@ use Illuminate\Http\Request;
 use App\Models\Article;
 use Illuminate\Support\Facades\Validator;
 
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Info(
+ *      version="1.0.0",
+ *      title="News Aggregator API",
+ *      description="This is the documentation for the News Aggregator API",
+ *
+ *      @OA\Contact(
+ *          email="admin@admin.com"
+ *      ),
+ *
+ *      @OA\License(
+ *          name="Apache 2.0",
+ *          url="https://www.apache.org/licenses/LICENSE-2.0.html"
+ *      )
+ *      
+ *     
+ * )
+ * 
+ *   @OA\SecurityScheme(
+ *      securityScheme="bearerAuth",
+ *      type="http",
+ *      scheme="bearer",
+ *      bearerFormat="JWT"
+ * )
+ */
+
 class ArticleController extends Controller
 {
-    // Fetch articles with pagination
+
+     /**
+     * @OA\Server(
+     *      url=L5_SWAGGER_CONST_HOST,
+     *      description="Demo API Server"
+     * )
+     */
+    /**
+     * @OA\Get(
+     *     path="/api/articles",
+     *     summary="Fetch articles with pagination",
+     *     tags={"Articles"},
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Number of articles per page",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
     public function getArticles(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -28,7 +91,49 @@ class ArticleController extends Controller
         return response()->json($articles, 200);
     }
 
-    // Search articles by keyword, date, category, and source
+    /**
+     * @OA\Get(
+     *     path="/api/articles/search",
+     *     summary="Search articles by keyword, date, category, and source",
+     *     tags={"Articles"},
+     *     @OA\Parameter(
+     *         name="keyword",
+     *         in="query",
+     *         description="Keyword to search in articles",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="date",
+     *         in="query",
+     *         description="Publication date of the article",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date")
+     *     ),
+     *     @OA\Parameter(
+     *         name="category",
+     *         in="query",
+     *         description="Category of the article",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="source",
+     *         in="query",
+     *         description="Source of the article",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
     public function searchArticles(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -45,8 +150,7 @@ class ArticleController extends Controller
         $query = Article::query();
 
         if ($request->filled('keyword')) {
-            $query->where('title', 'like', '%' . $request->input('keyword') . '%')
-                  ->orWhere('content', 'like', '%' . $request->input('keyword') . '%');
+            $query->whereFullText(['title', 'content'], $request->input('keyword'));
         }
 
         if ($request->filled('date')) {
@@ -66,7 +170,28 @@ class ArticleController extends Controller
         return response()->json($articles, 200);
     }
 
-    // Get details of a single article
+    /**
+     * @OA\Get(
+     *     path="/api/articles/{id}",
+     *     summary="Get details of a single article",
+     *     tags={"Articles"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the article",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Article not found"
+     *     )
+     * )
+     */
     public function getArticleDetails($id)
     {
         $article = Article::find($id);
