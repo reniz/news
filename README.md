@@ -78,8 +78,9 @@ This project is containerized using Docker for easy setup. Follow these steps to
    docker exec -it laravel_app php artisan schedule:work
    ```
    Alternatively, you can manually fetch articles from the news APIs using the following command:
+   ```sh
    docker exec -it laravel_app php artisan news:fetch
-
+   ```
 ## API Documentation
 
 API documentation is provided using Swagger/OpenAPI. You can access the Swagger UI by navigating to the following link after starting the application:
