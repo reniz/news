@@ -27,7 +27,7 @@ Make sure you have the following installed:
 ### Installation Steps
 1. **Clone the Repository**:
    ```sh
-   git clone https://github.com/reniz/laravel-innoscripta.git
+   git clone https://github.com/reniz/news.git
    ```
 
 2. **Install Dependencies**:
